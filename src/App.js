@@ -1,52 +1,24 @@
-import React, {Component} from 'react';
-import MonacoEditor from 'react-monaco-editor';
-import './App.css';
-
-const defaultCode = `export default {
-  name: 'name',
-  code: 'code'
-}`;
-
+import React, { Component } from 'react';
+import "./App.css";
+import {Route,Routes,BrowserRouter,Navigate} from "react-router-dom";
+import Index from "./views/index";
+import Test from './views/test';
+import Exam from "./views/exam";
+import Rank from './views/rank/rank';
 class App extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      code: defaultCode
-    }
-    this.onChangeHandle = this
-      .onChangeHandle
-      .bind(this);
-  }
-  onChangeHandle(value, e) {
-    this.setState({code: value});
-  }
-  editorDidMountHandle(editor, monaco) {
-    console.log('editorDidMount', editor);
-    editor.focus();
-  }
   render() {
-    const code = this.state.code;
-    const options = {
-      selectOnLineNumbers: true,
-      renderSideBySide: false
-    };
     return (
-      <div >
-        <div className="wrapper">
-          <div className="editor-container">
-            <MonacoEditor
-              theme="vs-dark"
-              language="javascript"
-              value={code}
-              options={options}
-              onChange={this.onChangeHandle}
-              editorDidMount={this.editorDidMountHandle}/>
-          </div>
-          <div className="view" contenteeitable={'true'}>
-            {this.state.code}
-          </div>
-        </div>
-      </div>
+      <BrowserRouter>
+      <Routes>
+        <Route path='/index' element={<Index />}>
+          <Route path="test/:level" element={<Test />}></Route>
+          <Route path="exam" element={<Exam />}></Route>
+          <Route path="Rank" element={<Rank/>}></Route>
+          <Route path="" element={<Navigate to="test" />}></Route>
+        </Route>
+        <Route index element={<Navigate to="/index/test" />}></Route>
+      </Routes>
+    </BrowserRouter>
     );
   }
 }

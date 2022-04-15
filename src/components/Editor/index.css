@@ -1,0 +1,44 @@
+.examControl{
+    margin: 10px 0;
+}
+.startExam{
+    margin-right: 20px;
+}
+.alreadyTime{
+    font-size: 20px;
+    margin-left: 20px;
+    font-weight: 800;
+}
+.wrapper{
+    display: flex;
+    justify-content: space-between;
+}
+.editor-container{
+
+}
+.beforeExam{
+    width: 800px;
+    height: 600px;
+    background-color: #1e1e1e;
+}
+.view{
+    background-color: white;
+    width:800px;
+    height:600px;
+}
+.myInput{
+    position: absolute;
+    padding:1em;
+    font-size: 1em;
+    font-weight: 800;
+    font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace;
+}
+.code-success{
+    color: aquamarine;
+}
+.code-error{
+    color: brown;
+}
+.submitExam{
+    margin: 10px 0;
+}
