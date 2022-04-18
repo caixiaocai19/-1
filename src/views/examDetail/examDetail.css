@@ -1,0 +1,33 @@
+.examDetail{
+
+}
+.mainContent{
+    margin-top: 20px;
+    width: 600px;
+    font-size: 20px;
+}
+
+.contentItem{
+    margin-top: 20px;
+    padding-left: 10px; ;
+    border-left: 4px solid #1890ff;
+    line-height: 50px;
+    display: flex;
+    justify-content: space-between;
+}
+.enjoinPer{
+    margin-top: 20px;
+}
+.userContainer{
+    display: flex;
+}
+.userDetail{
+    margin-left: 10px   ;
+}
+.avatorImg img{
+    width: 60px;
+    border-radius: 60px;
+}
+.userName{
+    text-align: center;
+}

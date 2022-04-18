@@ -4,6 +4,7 @@ import "./index.css";
 import { translate } from "../../utils/createMd";
 import { message, Button ,Modal} from "antd";
 import axios from "axios";
+import { useForm } from "antd/lib/form/Form";
 let md = translate();
 let compareString = "";
 let startTime;
@@ -18,12 +19,14 @@ class Editor extends Component {
       startExam:false,//是否开始比赛了
       time:0,//时间单位为秒,
       visible:false,//提示栏是否可见
-      completeTime:0//精确的完成时间
+      completeTime:0,//精确的完成时间
+      errCount:0//错误数量
     };
     this.onChangeHandle = this.onChangeHandle.bind(this);
   }
   //内容改变的回调
   onChangeHandle(value, e) {
+    
     this.setState({ myInputCode: value });
     return false;
   }
@@ -69,12 +72,18 @@ class Editor extends Component {
   }
   //点击提交测试
   submitExam=()=>{
-    const {myInputCode} = this.state;
-    if(compareString!==myInputCode){
-      message.warn("你的程序中还存在与题目不一致的地方哦！仔细检查一下！");
+    const {myInputCode,errCount} = this.state;
+    if(compareString.length!==myInputCode.length){//改为长度相同就可以
+      message.warn("你的程序和目标程序长度不一致！");
       return;
     }
     endTime = new Date().getTime();
+    //统计错误数量
+    for(let i=0;i<compareString.length;i++){
+      if(compareString[i]!==myInputCode[i]){
+        this.setState((state)=>({errCount:state.errCount+1}));
+      }
+    }
     clearInterval(timer);
     this.setState({visible:true,completeTime:(endTime-startTime)/1000});
   }
@@ -95,11 +104,12 @@ class Editor extends Component {
       startExam:false,//是否开始比赛了
       time:0,//时间单位为秒,
       visible:false,//提示栏是否可见
-      completeTime:0//精确的完成时间
+      completeTime:0,//精确的完成时间
+      errCount:0//错误数量
     })
   }
   render() {
-    const {code,time,myInputCode,visible,completeTime,startExam} = this.state;
+    const {code,time,myInputCode,visible,completeTime,startExam,errCount} = this.state;
     const options = {
       selectOnLineNumbers: true,
       renderSideBySide: false,
@@ -163,6 +173,7 @@ class Editor extends Component {
         maskClosable={false}
       >
         <h1>你本次完成测试的时间是{completeTime}s</h1>
+        <h1>你本次完成测试的的错误率是{errCount/myInputCode.length*100}%</h1>
       </Modal>
       </div>
     );

@@ -7,20 +7,16 @@ import {
   UserOutlined,
 } from "@ant-design/icons";
 import React from "react";
-import { Outlet, Link } from "react-router-dom";
+import { Outlet, Link,Navigate } from "react-router-dom";
 const { Header, Content, Footer, Sider } = Layout;
-const { SubMenu } = Menu;
-
 export default class SiderDemo extends React.Component {
   state = {
     collapsed: false,
   };
-
   onCollapse = (collapsed) => {
     console.log(collapsed);
     this.setState({ collapsed });
   };
-
   render() {
     const { collapsed } = this.state;
     return (
@@ -31,21 +27,13 @@ export default class SiderDemo extends React.Component {
             <Menu.Item key="1" icon={<PieChartOutlined />}>
               <Link to="test">练习</Link>
             </Menu.Item>
-            <SubMenu key="sub1" icon={<DesktopOutlined />} title="考试">
-              <Menu.Item key="3">
-                <Link to="test/0">简单</Link>
-              </Menu.Item>
-              <Menu.Item key="4">
-                <Link to="test/1">中等</Link>
-              </Menu.Item>
-              <Menu.Item key="5">
-                <Link to="test/2">困难</Link>
-              </Menu.Item>
-            </SubMenu>
-            <Menu.Item key="2" icon={<TeamOutlined />}>
+            <Menu.Item key="2" icon={<DesktopOutlined />}>
+              <Link to="exam">考试</Link>
+            </Menu.Item>
+            <Menu.Item key="3" icon={<TeamOutlined />}>
               <Link to="rank">排行榜</Link>
             </Menu.Item>
-            <Menu.Item key="9" icon={<FileOutlined />}>
+            <Menu.Item key="4" icon={<FileOutlined />}>
               设置
             </Menu.Item>
           </Menu>
