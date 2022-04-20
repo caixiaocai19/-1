@@ -7,7 +7,7 @@ import {
   UserOutlined,
 } from "@ant-design/icons";
 import React from "react";
-import { Outlet, Link,Navigate } from "react-router-dom";
+import { Outlet, Link, Navigate } from "react-router-dom";
 const { Header, Content, Footer, Sider } = Layout;
 export default class SiderDemo extends React.Component {
   state = {
@@ -22,7 +22,7 @@ export default class SiderDemo extends React.Component {
     return (
       <Layout style={{ minHeight: "100vh" }}>
         <Sider collapsible collapsed={collapsed} onCollapse={this.onCollapse}>
-          <div className="logo" />
+          {/* <div className="logo" /> */}
           <Menu theme="dark" defaultSelectedKeys={["1"]} mode="inline">
             <Menu.Item key="1" icon={<PieChartOutlined />}>
               <Link to="test">练习</Link>
@@ -31,10 +31,10 @@ export default class SiderDemo extends React.Component {
               <Link to="exam">考试</Link>
             </Menu.Item>
             <Menu.Item key="3" icon={<TeamOutlined />}>
-              <Link to="rank">排行榜</Link>
+              <Link to="addType">新增</Link>
             </Menu.Item>
             <Menu.Item key="4" icon={<FileOutlined />}>
-              设置
+              <Link to="seting">设置</Link>
             </Menu.Item>
           </Menu>
         </Sider>

@@ -3,8 +3,6 @@ import MonacoEditor from "react-monaco-editor";
 import "./index.css";
 import { translate } from "../../utils/createMd";
 import { message, Button ,Modal} from "antd";
-import axios from "axios";
-import { useForm } from "antd/lib/form/Form";
 let md = translate();
 let compareString = "";
 let startTime;
@@ -36,13 +34,7 @@ class Editor extends Component {
     editor.focus();
   }
   componentDidMount() {
-    axios
-      .get("http://localhost:3001/api/get-article?articleId=50")
-      .then((res) => {
-        let content = res.data.data.data.article.content;
-        compareString = content.slice(6, content.length - 5);
-        this.setState({ code: content });
-      });
+      compareString = this.props.propCode.slice(6, this.props.propCode.length - 5);
   }
   //获取对应的样式
   getClassName = (code, index) => {
@@ -72,6 +64,7 @@ class Editor extends Component {
   }
   //点击提交测试
   submitExam=()=>{
+    let cnt=0;
     const {myInputCode,errCount} = this.state;
     if(compareString.length!==myInputCode.length){//改为长度相同就可以
       message.warn("你的程序和目标程序长度不一致！");
@@ -81,9 +74,16 @@ class Editor extends Component {
     //统计错误数量
     for(let i=0;i<compareString.length;i++){
       if(compareString[i]!==myInputCode[i]){
+        cnt++;
         this.setState((state)=>({errCount:state.errCount+1}));
       }
     }
+    let data={
+      spendTime:endTime-startTime,
+      correctRate:(1-cnt/compareString.length)*100,
+      errorCount:cnt
+    }
+    this.props.handleSubmit&&this.props.handleSubmit(data);
     clearInterval(timer);
     this.setState({visible:true,completeTime:(endTime-startTime)/1000});
   }
@@ -125,7 +125,7 @@ class Editor extends Component {
           <div className="editor-container">
             {
               this.state.startExam?(<MonacoEditor
-                width="800"
+                width="700"
                 height="600"
                 theme="vs-dark"
                 language="cpp"
@@ -155,7 +155,7 @@ class Editor extends Component {
             <span
               onCopy={this.handleCopy}
               dangerouslySetInnerHTML={{
-                __html: md.render(code),
+                __html: md.render(this.props.propCode),
               }}
             ></span>
           </div>

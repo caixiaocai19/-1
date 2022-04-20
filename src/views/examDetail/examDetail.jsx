@@ -1,5 +1,13 @@
 import React, { useEffect, useState } from "react";
-import { getExamDetailById, joinExam } from "../../Api/api";
+import {
+  getExamDetailById,
+  joinExam,
+  getTypingSubmitOrderByCorrectRate,
+  getTypingSubmitOrderBySpendTime,
+  addSubmit,
+  getTypingSubmitByExamId,
+  getTestDetailById,
+} from "../../Api/api";
 import { useParams } from "react-router-dom";
 import Editor from "../../components/Editor";
 import { Radio, Modal, Input, message, Table } from "antd";
@@ -36,10 +44,19 @@ const Examdetail = () => {
     endTime: "2022-04-06 00:00:00",
     retryTimes: 2,
   });
+  //考试题目
+  const [content, setContent] = useState("");
   useEffect(() => {
     getExamDetailById(id)
       .then((res) => {
         setExamDetail(res.data);
+        getTestDetailById(res.data.typingId)
+          .then((res) => {
+            setContent(res.data.content);
+          })
+          .catch((err) => {
+            console.log(err);
+          });
       })
       .catch((err) => {
         console.log(err);
@@ -51,39 +68,7 @@ const Examdetail = () => {
     setInputValue(even.target.value);
   }
   //单选框
-  const [radioValue, setRadiovalue] = useState("1");
-  function handleRadioChange(even) {
-    setRadiovalue(even.target.value);
-  }
-  //弹出框
-  const [visible, setVisible] = useState(false);
-  async function handleOnOk() {
-    let res = false;
-    try {
-      res = await joinExam({
-        userId: 100003,
-        typingExamId: examDetail.id,
-        invitationCode: inputValue * 1,
-      });
-      console.log(res);
-    } catch (error) {
-      console.log(error);
-    }
-    if (res) {
-      setVisible(false);
-    } else {
-      message.error("邀请码错误");
-    }
-  }
-  function handleOnCancel() {
-    setRadiovalue("1");
-    setVisible(false);
-  }
-  //表格
-  function handleTableChange(pagination, filters, sorter, extra) {
-    console.log("params", pagination, filters, sorter, extra);
-  }
-  const data = [
+  const [data, setData] = useState([
     {
       key: 3,
       userId: 100001,
@@ -94,37 +79,15 @@ const Examdetail = () => {
       errorCount: 1,
       typingExamId: 1,
     },
-    {
-      key: 5,
-      userId: 100002,
-      typingId: 1,
-      submitTime: 1648884524421,
-      spendTime: 33,
-      correctRate: 95.0,
-      errorCount: 0,
-      typingExamId: 1,
-    },
-    {
-      key: 9,
-      userId: 100003,
-      typingId: 1,
-      submitTime: 1648884824421,
-      spendTime: 13333,
-      correctRate: 88.88,
-      errorCount: 6,
-      typingExamId: 1,
-    },
-  ];
+  ]);
   const columns = [
     {
       title: "用户ID",
-      dataIndex: "userId"
+      dataIndex: "userId",
     },
     {
       title: "提交时间",
       dataIndex: "submitTime",
-      defaultSortOrder: "descend",
-      sorter: (a, b) => a.submitTime - b.submitTime,
     },
     {
       title: "花费时间",
@@ -149,6 +112,80 @@ const Examdetail = () => {
       dataIndex: "typingExamId",
     },
   ];
+  const [radioValue, setRadiovalue] = useState("1");
+  function handleRadioChange(even) {
+    if (even.target.value === "3") {
+      getTypingSubmitByExamId(examDetail.id).then((res) => {
+        const data = res.data;
+        data.forEach((element) => {
+          element.key = element.id;
+          element.submitTime = formatDate(element.submitTime);
+        });
+        setData(data);
+        console.log(data);
+      });
+    }
+    setRadiovalue(even.target.value);
+  }
+  //弹出框
+  const [visible, setVisible] = useState(false);
+  async function handleOnOk() {
+    let res = false;
+    try {
+      res = await joinExam({
+        userId: 100003,
+        typingExamId: examDetail.id,
+        invitationCode: inputValue
+      });
+    } catch (error) {
+      console.log(error);
+    }
+    if (res.data) {
+      message.success("报名成功！")
+      setVisible(false);
+    } else {
+      message.error("邀请码错误");
+    }
+  }
+  function handleOnCancel() {
+    setRadiovalue("1");
+    setVisible(false);
+  }
+  //表格
+  function handleTableChange(pagination, filters, sorter, extra) {
+    // console.log("params", pagination, filters, sorter, extra);
+  }
+  //格式化时间戳
+  function formatDate(time) {
+    let date = new Date(time);
+    return (
+      date.getFullYear() + "年" + date.getMonth() + "月" + date.getDay() + "日"
+    );
+  }
+  //处理提交
+  function handleSubmit(data) {
+    //这个到时候从session中获取
+    data.userId = 100001;
+    data.typingId = examDetail.typingId;
+    data.typingExamId=examDetail.id;
+    data.submitTime=new Date().getTime();
+    addSubmit(data)
+      .then((res) => {
+        console.log(res);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+    console.log("处理提交", data);
+  }
+  //点击开始考试处理
+  function handleStartExam() {
+    console.log(examDetail.hadJoin);
+    if (examDetail.hadJoin) {
+      return;
+    }
+    setVisible(true);
+  }
   return (
     <div className="examDetail">
       <Radio.Group
@@ -159,8 +196,8 @@ const Examdetail = () => {
         onChange={handleRadioChange}
       >
         <Radio.Button value="1">比赛说明</Radio.Button>
-        <Radio.Button value="2" onClick={() => setVisible(true)}>
-          报名
+        <Radio.Button value="2" onClick={handleStartExam}>
+          开始考试
         </Radio.Button>
         <Radio.Button value="3">排行榜</Radio.Button>
       </Radio.Group>
@@ -189,25 +226,27 @@ const Examdetail = () => {
           <div className="contentItem">
             <div className="enjoinPer">参与人</div>
             <div className="userContainer">
-              {examDetail.joinUsers.map((item, index) => {
-                return (
-                  <div className="userDetail" key={index}>
-                    <div className="avatorImg">
-                      <img
-                        src={"http://119.29.136.236:8081" + item.avatar}
-                        alt="头像"
-                      />
+              {examDetail.joinUsers &&
+                examDetail.joinUsers.map((item, index) => {
+                  return (
+                    <div className="userDetail" key={index}>
+                      <div className="avatorImg">
+                        <img
+                          src={"http://119.29.136.236:8081" + item.avatar}
+                          alt="头像"
+                        />
+                      </div>
+                      <div className="userName">{item.username}</div>
                     </div>
-                    <div className="userName">{item.username}</div>
-                  </div>
-                );
-              })}
+                  );
+                })}
             </div>
           </div>
         </div>
       ) : radioValue === "2" ? (
         <div>
-          <Editor></Editor>
+          {" "}
+          <Editor handleSubmit={handleSubmit} propCode={content}></Editor>
         </div>
       ) : (
         <div>
